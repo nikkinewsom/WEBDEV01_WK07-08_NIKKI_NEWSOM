@@ -8,4 +8,23 @@ const promptInput = async (message) => {
     })
 }
 
+const promptCheckbox = async (message, choices) => {
+    return await inquirer.prompt({
+        type: 'checkbox',
+        name: 'answer',
+        message,
+        choices
+    })
+}
+
+const promptList = async (message, choices) => {
+    return await inquirer.prompt({
+        type: 'list',
+        name: 'answer',
+        message,
+        choices
+    })
+}
+
 exports.promptInput = promptInput;
+exports.promptList = promptList;
