@@ -60,7 +60,7 @@ const addItemToList = async (id) => {
 const removeItemFromList = async (id) => {
     const todoList = getTodoList(id)
     const items = todoList.items.map(item => {
-        return { name: item.name, value: item.id }
+        return { name: item.text, value: item.id }
     })
     const result = await promptList('Select the item to delete.', items)
     const modifiedTodoList = { ...todoList, items: todoList.items.filter(item.id != result.answer) }
