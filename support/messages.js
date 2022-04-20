@@ -1,6 +1,13 @@
-const messageTitle = () => {
+const { db } = require('./utility')
+const messageTitle = (id = null) => {
     console.clear()
-    console.log('Todo-list')
+    if (id) {
+        const entry = db().find(entry => entry.id == id)
+        console.log(`Todo-list: ${entry.name}`)
+    } else {
+        console.log('Todo-list')
+
+    }
     console.log('')
 }
 

@@ -1,52 +1,49 @@
-const fs = require('fs')
+// const fs = require('fs')
 const inquirer = require('inquirer')
-const uuidv4 = require('uuid').v4
+// const uuidv4 = require('uuid').v4
 const colors = require('colors')
 const Table = require('cli-table3')
 const _ = require('lodash')
 
-
 const { messageTitle } = require('./support/messages')
-const { db } = require('./support/utility')
+const { lookupTable } = require('./support/menu')
+// const { db } = require('./support/utility')
 
 
-const run = async () => {
-    messageTitle()
 
-    let result = await inquirer.prompt({
-        type: 'list',
-        name: 'answer',
-        message: 'Choose an option',
-        choices: [
-            { name: 'Create new list', value: 'new' },
-            { name: 'Select list', value: 'select' },
-            { name: 'Exit', value: 'exit' },
-        ]
-    })
+const run = async (id = null) => {
+    messageTitle(id)
 
-    if (result.answer == 'new') {
-        const name = await inquirer.prompt({
-            type: 'input',
+    let result = await inquirer.prompt([
+        //Entry Menu
+        {
+            type: 'list',
             name: 'answer',
-            message: 'List Name:'
-        })
-        // name, id, items
-        const entry = {
-            name: name.answer,
-            id: uuidv4(),
-            items: []
-        }
+            message: 'Choose an option',
+            when: id == null,
+            choices: [
+                { name: 'Create new list', value: 'new' },
+                { name: 'Select list', value: 'select' },
+                { name: 'Exit', value: 'exit' },
+            ]
+        },
+        //Submenu
+        {
+            type: 'list',
+            name: 'answer',
+            message: 'Choose an option',
+            when: id !== null,
+            choices: [
+                { name: 'Add item', value: 'add' },
+                { name: 'Remove item', value: 'remove' },
+                { name: 'Update status', value: 'update' },
+                { name: 'View list', value: 'view' },
+                { name: 'Go back', value: 'back' },
+            ]
+        }])
 
-        const modifiedDB = [...db(), entry]
-        fs.writeFileSync('./database/db.json', JSON.stringify(modifiedDB), { encoding: 'utf-8' })
-        console.log(db())
-    }
-
-    if (result.answer == 'exit') {
-        console.clear()
-        console.log('Thank you. Hope to see you again.')
-        console.log('')
-    }
+    const returnedId = await lookupTable(result.answer, id)
+    returnedId ? run(returnedId) : null
 }
 
 run()
