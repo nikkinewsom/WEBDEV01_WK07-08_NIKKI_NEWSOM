@@ -1,7 +1,8 @@
 const fs = require('fs')
 const uuidv4 = require('uuid').v4
+const Table = require('cli-table3')
 const { db, getTodoList } = require('./utility')
-const { promptInput, promptList, promptCheckbox } = require('./prompts')
+const { promptInput, promptList, promptCheckbox, promptConfirm, confirmRecursively } = require('./prompts')
 
 const dbPath = '../database/db.json'
 
@@ -13,7 +14,7 @@ const lookupTable = async (answer, id) => {
         remove: removeItemFromList,
         update: updateListStatus,
         view: viewList,
-        back: goBackOneLevel
+        back: goBackOneLevel,
     }[answer](id)
 }
 
@@ -89,8 +90,21 @@ const updateListStatus = async (id) => {
 
 const viewList = async (id) => {
     const todoList = getTodoList(id)
-}
+    const items = todoList.items.map(item => [item.text, item.complete])
 
+    const table = new Table({
+        head: ['Item', 'Complete']
+        , colWidths: [20, 11]
+    });
+
+    items.forEach(item => {
+        table.push(item);
+    })
+
+    console.log(table.toString());
+    await confirmRecursively('Ready to move on?')
+    return id
+}
 const goBackOneLevel = async (id) => {
     // const todoList = getTodoList(id)
 }
