@@ -27,4 +27,5 @@ const promptList = async (message, choices) => {
 }
 
 exports.promptInput = promptInput;
+exports.promptCheckbox = promptCheckbox;
 exports.promptList = promptList;
