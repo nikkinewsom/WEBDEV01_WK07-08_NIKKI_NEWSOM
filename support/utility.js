@@ -12,4 +12,8 @@ const db = () => {
     }))
 }
 
+const getTodoList = (id) => {
+    return db().find(list => list.id == id)
+}
 exports.db = db;
+exports.getTodoList = getTodoList;
