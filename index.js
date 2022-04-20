@@ -1,7 +1,7 @@
 // const fs = require('fs')
 const inquirer = require('inquirer')
 // const uuidv4 = require('uuid').v4
-const colors = require('colors')
+// const colors = require('colors')
 // const Table = require('cli-table3')
 const _ = require('lodash')
 
