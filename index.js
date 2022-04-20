@@ -43,7 +43,9 @@ const run = async (id = null) => {
         }])
 
     const returnedId = await lookupTable(result.answer, id)
-    returnedId ? run(returnedId) : null
+    if (returnedId == 'back') { return run() }
+    if (returnedId == 'exit') { return null }
+    return run(returnedId)
 }
 
 run()

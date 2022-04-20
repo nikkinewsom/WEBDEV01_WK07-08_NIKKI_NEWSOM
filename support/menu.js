@@ -3,8 +3,9 @@ const uuidv4 = require('uuid').v4
 const Table = require('cli-table3')
 const { db, getTodoList } = require('./utility')
 const { promptInput, promptList, promptCheckbox, promptConfirm, confirmRecursively } = require('./prompts')
+const { runMain } = require('module')
 
-const dbPath = '../database/db.json'
+const dbPath = './database/db.json'
 
 const lookupTable = async (answer, id) => {
     return await {
@@ -14,7 +15,7 @@ const lookupTable = async (answer, id) => {
         remove: removeItemFromList,
         update: updateListStatus,
         view: viewList,
-        back: goBackOneLevel,
+        back: goBackOneLevel
     }[answer](id)
 }
 
@@ -34,11 +35,21 @@ const addNewEntry = async () => {
     return entry.id
 }
 
+const selectList = async () => {
+    const choices = db().map(list => {
+        const { name, id } = list
+        return { name, value: id }
+    })
+    const result = await promptList('Selct Todo-List', choices)
+    const activeList = getTodoList(result.answer)
+    return activeList.id
+}
+
 const exitApp = () => {
     console.clear()
     console.log('Thank you. Hope to see you again.')
     console.log('')
-    return null;
+    return 'exit';
 }
 
 // Submenu Section
@@ -55,11 +66,17 @@ const addItemToList = async (id) => {
 
     const modifiedDB = [...db().filter(list => list.id != id), modifiedTodoList]
     fs.writeFileSync('./database/db.json', JSON.stringify(modifiedDB), { encoding: 'utf-8' })
-    return id
+    // return id
+    return await viewList(id)
 }
 
 const removeItemFromList = async (id) => {
     const todoList = getTodoList(id)
+    if (todoList.items.length == 0) {
+        await confirmRecursively(`Can't remove from empty list.`)
+        return id;
+    }
+
     const items = todoList.items.map(item => {
         return { name: item.text, value: item.id }
     })
@@ -67,11 +84,16 @@ const removeItemFromList = async (id) => {
     const modifiedTodoList = { ...todoList, items: todoList.items.filter(item.id != result.answer) }
     const modifiedDB = [...db().filter(list => list.id != id), modifiedTodoList]
     fs.writeFileSync('./database/db.json', JSON.stringify(modifiedDB), { encoding: 'utf-8' })
-    return id
+    return await viewList(id)
 }
 
 const updateListStatus = async (id) => {
     const todoList = getTodoList(id)
+    if (todoList.items.length == 0) {
+        await confirmRecursively(`Can't update item from empty list. Try again`)
+        return await viewList(id)
+    }
+
     const items = todoList.items.map(item => {
         return { name: item.text, value: item.id, checked: item.complete }
     })
@@ -85,7 +107,7 @@ const updateListStatus = async (id) => {
     const modifiedTodoList = { ...todoList, items: modifiedItems }
     const modifiedDB = [...db().filter(list => list.id != id), modifiedTodoList]
     fs.writeFileSync('./database/db.json', JSON.stringify(modifiedDB), { encoding: 'utf-8' })
-    return id
+    return await viewList(id)
 }
 
 const viewList = async (id) => {
@@ -107,6 +129,7 @@ const viewList = async (id) => {
 }
 const goBackOneLevel = async (id) => {
     // const todoList = getTodoList(id)
+    return 'back';
 }
 
 
